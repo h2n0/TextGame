@@ -21,18 +21,22 @@ public class TitleScreen extends Screen {
 	}
 	
 	public void postInit(){
+		
+		//Initialise new Font and Renderer
 		Font.newInstance(this.game);
 		this.r = new Renderer(this.game);
 	}
 
 	@Override
 	public void update() {
+		
+		//Update the magic value to make it colorful
 		this.fade = (this.fade + 0.01f) % 2;
 		
 		this.mx = this.input.mouse.getX();
 		this.my = this.input.mouse.getY();
 		
-		if(this.input.leftMouseButton.justClicked()){
+		if(this.input.leftMouseButton.justClicked()){ // If the mouse is just and within the 'cursor' hide the cursor and start the game
 			if(mx >= (Text.w-24)/2 && mx <= (Text.w-24)/2 + 24){
 				if(my >= 175 && my <= 199){
 					//this.game.hiderCursor();
@@ -44,9 +48,13 @@ public class TitleScreen extends Screen {
 
 	@Override
 	public void render(Graphics g) {
+		//Make sure the screen is all black
 		this.r.fill(0);
+		
+		//Nice bit of linear interpolation
 		Font.instance.drawStringCenterWithColor(r, "Lemon Manager", this.r.larp(0xFFFFFF, 0xFFFF00, fade>1f?(2f-this.fade):fade));
 		
+		//Have we done the cursor trick yet
 		if(!show) Font.instance.drawStringCenter(r, R.cusor, 175);
 		else Font.instance.drawString(r, R.cusor, mx-11, my-12);
 		

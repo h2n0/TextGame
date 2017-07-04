@@ -41,7 +41,10 @@ public class GameScreen extends Screen {
 	
 	
 	public void postInit(){
+		
+		//Have we been on this screen before when loading an old instance
 		if(!this.loaded){
+			// If not load the defaults in
 			this.r = new Renderer(this.game);
 			this.stand = FileIO.instance.readInternalFile("/Stand.txt");
 			this.river = getRiver();
@@ -55,11 +58,15 @@ public class GameScreen extends Screen {
 			this.stats = new Stat[]{new Stat("Juice", 10, 1.1f, 10), new Stat("Lemons", 10, 1.1f, 10), new Stat("People", 10, 1.1f, 10)};
 			
 			if(!this.played){ // First time
+				
+				//Load the text into the TypeWriter class
 				TypeWriter.newInstance(FileIO.instance.readInternalFile("/intro.txt"), 2, 148);
 				this.intro = true;
 				Text.data.setValue("Juice", "0");
 				Text.data.setValue("Lemons", "0");
 				Text.data.setValue("People", "0");
+				
+				//Playing day 1
 				this.day = 1;
 				this.hour = 9;
 				this.minute = 0;
@@ -70,9 +77,6 @@ public class GameScreen extends Screen {
 				this.gf = new GameInfo();
 				
 			}else{ // Other times
-				for(int i = 0; i < Text.data.getData("Juice").getInt(); i++){
-					this.stats[0].levelupFree();
-				}
 				this.intro = false;
 				this.game.hiderCursor();
 				
@@ -80,13 +84,21 @@ public class GameScreen extends Screen {
 				this.hour = Text.data.getData("Hour").getInt();
 				this.minute = Text.data.getData("Minute").getInt();
 				this.gf = GameInfo.loadFromFile(Text.data);
+				this.fade = 1f;
 			}
 			
 			this.nm = new NotificationManger();
 		}else{// Back from the days end screen
+			
+			//Update the values in the save
 			Text.data.setValue("Days", ""+this.day);
 			Text.data.setValue("Hour", ""+this.hour);
 			Text.data.setValue("Minute", ""+this.minute);
+			
+
+			Text.data.setValue("Juice", ""+this.stats[0].getLevel());
+			Text.data.setValue("Lemons", ""+this.stats[1].getLevel());
+			Text.data.setValue("People", ""+this.stats[2].getLevel());
 		}
 	}
 	
@@ -106,7 +118,7 @@ public class GameScreen extends Screen {
 			}
 			
 			if(this.t == 0){
-				this.mtick = (this.mtick + 1) % 5;
+				this.mtick = (this.mtick + 1) % 2;
 				if(this.mtick == 0){
 					advanceTime();
 				}
@@ -157,6 +169,7 @@ public class GameScreen extends Screen {
 		if(intro){
 			TypeWriter.instance.render(r);
 			if(TypeWriter.instance.isFinished()){
+				//Make it flash so the user knows they can click it
 				drawCursor(168, (t >= 15)?0x999999 :0xFFFFFF);
 			}
 		}else{
@@ -206,7 +219,9 @@ public class GameScreen extends Screen {
 		}**/
 	}
 	
+	//Draw the cursor easiy without having to faff with values
 	private void drawCursor(){
+		//Offset so that the real cursor is in the middle of the fake cursor
 		Font.instance.drawString(r, this.cursor, this.mx - 11, this.my - 12, this.input.leftMouseButton.isHeld()?0x333333:0xFFFFFF);
 	}
 	
@@ -214,6 +229,7 @@ public class GameScreen extends Screen {
 		Font.instance.drawStringCenter(r, this.cursor, y, col);
 	}
 	
+	//Generates a new river string
 	public String getRiver(){
 		String s = "";
 		float last = 0;
@@ -230,8 +246,9 @@ public class GameScreen extends Screen {
 		return s;
 	}
 	
+	//Called when time needs to advance and sets the screen to the end day screen
 	private void advanceTime(){
-		this.minute += 15;
+		this.minute += 5;
 		if(this.minute >= 60){
 			this.minute = 0;
 			this.hour ++;
@@ -243,6 +260,8 @@ public class GameScreen extends Screen {
 		}
 	}
 	
+	
+	//Called at the end of the day to do time managment
 	public void newDay(){
 		this.nm.addLine("Ended day: "+this.day);
 		if(this.gf.currentMoney > this.gf.money[this.day%7]){

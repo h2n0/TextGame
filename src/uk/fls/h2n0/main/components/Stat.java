@@ -53,4 +53,8 @@ public class Stat {
 	public int getCost(){
 		return this.cost;
 	}
+	
+	public int getLevel(){
+		return this.level;
+	}
 }

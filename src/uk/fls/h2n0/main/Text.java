@@ -14,15 +14,21 @@ public class Text extends Init{
 	public static DataFile data = new DataFile("options");
 	
 	public Text(boolean played){
+		
+		//Regular house keeping for the library used
 		super("Text adventrue", w * s, h * s);
 		setInput(new Input(this, Input.MOUSE, Input.KEYS));
 		useCustomBufferedImage(w, h, false);
 		setScreen(new TitleScreen(played));
 		skipInit(); 
-		Text.data.setValue("Played", "true");
+		
+		//Set the 'Played' value to true it it was false, or null
+		if(!played)Text.data.setValue("Played", "true");
 	}
 	
 	public static void main(String[] args){
+		
+		//Check to see if the player has played the game before if not run the into "cinimatic"
 		new Text(Text.data.getData("Played")==null?false:Text.data.getData("Played").getBool()).start();
 	}
 }
